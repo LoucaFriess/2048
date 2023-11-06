@@ -45,9 +45,6 @@ class Graphique():
                 
                 count += 1
 
-        
-
-
 
     def affiche_plateau(self, plateau):
         for id, elt in enumerate(plateau):
@@ -59,12 +56,22 @@ class Graphique():
                                         font = ("Arial", 30))
 
 
+    def get_mouvement(self):
+        return self.deplacement
+
+    def bas(self):
+        self.fenetre.quit()
+        print(1)
+        self.deplacement = 'b'
+        
+
+    def mouvements(self):
+        self.canvas.bind_all("<Down>", self.bas())
         self.fenetre.mainloop()
-
-
 
 
 if __name__ == "__main__":
     a = Graphique()
     a.grille()
     a.affiche_plateau([2, 8, 16, 0, 0, 2048])
+    a.mouvements()
