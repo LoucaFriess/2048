@@ -46,9 +46,6 @@ class Graphique():
                 count += 1
 
         
-
-
-
     def affiche_plateau(self, plateau):
         for id, elt in enumerate(plateau):
             if elt != 0:
