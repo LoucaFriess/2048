@@ -24,37 +24,38 @@ class Jeu2048:
     
 
     def droite(self):
-        for y in range(4):
-            plateau = self.plateau.copy()
+        tableau = self.plateau.copy()
+        for y in range( 4):
             c = 0
-            merged = False
+            fusionne = False
             # if tableau[y*TAILLE+3] == 0:
             #         c += 1            
-            for x in range(3, -1, -1):
+            for x in range(3,-1,-1):
                 i = y*TAILLE+x
-                if plateau[i] == 0:
+                if tableau[i] == 0:
                     c += 1
                     continue
-                if  c+x != 3 and plateau[i] == plateau[i+c+1] and not merged :
+                if  x+c != 3 and tableau[i] == tableau[i+c+1] and not fusionne :
                     # print("merging")
-                    merged = True
-                    plateau[i+c+1] *=2
-                    plateau[i] = 0
+                    fusionne = True
+                    tableau[i+c+1] *=2
+                    tableau[i] = 0
 
                     c+= 1
                 elif c!= 0:
-                    merged = False
+                    fusionne = False
                     # print(f"moving to {y},{x+c}")
-                    plateau[i+c] = plateau[i]
-                    plateau[i] = 0
-        return plateau
+                    tableau[i+c] = tableau[i]
+                    tableau[i] = 0
                 # print(self)
+        return tableau
+
    
     def gauche(self):
         tableau = self.plateau.copy()
         for y in range(4):
             c = 0
-            merged = False
+            fusionne = False
             # if tableau[y*TAILLE+3] == 0:
             #         c += 1            
             for x in range(4):
@@ -62,15 +63,15 @@ class Jeu2048:
                 if tableau[i] == 0:
                     c -= 1
                     continue
-                if  x+c != 0 and tableau[i] == tableau[i+c-1] and not merged :
+                if  x+c != 0 and tableau[i] == tableau[i+c-1] and not fusionne :
                     # print("merging")
-                    merged = True
+                    fusionne = True
                     tableau[i+c-1] *=2
                     tableau[i] = 0
 
                     c-= 1
                 elif c!= 0:
-                    merged = False
+                    fusionne = False
                     # print(f"moving to {y},{x+c}")
                     tableau[i+c] = tableau[i]
                     tableau[i] = 0
@@ -83,7 +84,7 @@ class Jeu2048:
 
         for x in range(4):
             c = 0
-            merged = False
+            fusionne = False
             # if tableau[y*TAILLE+3] == 0:
             #         c += 1            
             for y in range(4):
@@ -91,15 +92,15 @@ class Jeu2048:
                 if tableau[i] == 0:
                     c -= 1
                     continue
-                if  y+c != 0 and tableau[i] == tableau[i+TAILLE*(c-1)] and not merged :
+                if  y+c != 0 and tableau[i] == tableau[i+TAILLE*(c-1)] and not fusionne :
                     # print("merging")
-                    merged = True
+                    fusionne = True
                     tableau[i+TAILLE*(c-1)] *=2
                     tableau[i] = 0
 
                     c-= 1
                 elif c!= 0:
-                    merged = False
+                    fusionne = False
                     # print(f"moving to {y},{x+c}")
                     tableau[i+TAILLE*c] = tableau[i]
                     tableau[i] = 0
