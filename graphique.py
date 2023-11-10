@@ -1,4 +1,5 @@
-import tkinter 
+import tkinter
+from functools import partial
 
 class Graphique():
     def __init__(self) -> None:
@@ -17,16 +18,19 @@ class Graphique():
         self.canvas = tkinter.Canvas(self.fenetre, height = 850, width = 850, bg="white")
         self.canvas.pack()
 
+        self.grille()
+        self.create_numbers()
 
     def grille(self):
         """crée la grille"""
-        self.canvas.create_rectangle(100, 100, 700, 700, fill = 'grey66', outline="")
+        self.canvas.create_rectangle(100, 180, 700, 780, fill = 'grey66', outline="")
 
         x1 = 120
-        y1 = 120
+        y1 = 200
         x2 = 237
-        y2 = 237
+        y2 = 317
 
+        # info des rectangles
         self.rectangles = {}
         count = 0
         for colonne in range(4):
@@ -45,33 +49,83 @@ class Graphique():
                 
                 count += 1
 
+    def create_numbers(self):
+        self.numbers = {}
+        for id in range(16):
+            self.numbers[id] = self.canvas.create_text(self.rectangles[id]["x_milieu"], 
+                                    self.rectangles[id]["y_milieu"], 
+                                    text = 0,
+                                    font = ("Arial", 30),
+                                    state = 'hidden')
+            
+        self.score = self.canvas.create_text(160, 160, text = "score : 0", font = ("Helvetica", 20))
 
-    def affiche_plateau(self, plateau):
-        for id, elt in enumerate(plateau):
+    def affiche_plateau(self, tray: 'list[int]', score: int = None) -> None:
+        """ displays the tray in a tkinter window 
+        tray = tray of the game 
+        score = score of the game, if any score is given, it will be written "not calculated" """
+
+        for id, elt in enumerate(tray):
             if elt != 0:
                 self.canvas.itemconfigure(self.rectangles[id]['id'], fill=self.couleurs[elt])
-                self.canvas.create_text(self.rectangles[id]["x_milieu"], 
-                                        self.rectangles[id]["y_milieu"], 
-                                        text = elt,
-                                        font = ("Arial", 30))
+                self.canvas.itemconfigure(self.numbers[id], text = elt, state = 'normal')
+            if elt == 0:
+                self.canvas.itemconfigure(self.rectangles[id]['id'], fill='grey91')
+                self.canvas.itemconfigure(self.numbers[id], text = elt, state = 'hidden')
+        
+        if score == None:
+            self.canvas.itemconfigure(self.score, text = "score : not calculated")
+        else:
+            self.canvas.itemconfigure(self.score, text = f"score : {score}")
 
-
-    def get_mouvement(self):
+    def get_mouvement(self) -> str:
+        """ return the deplacement that has been chosen by the user, with a letter 
+        b = down, h = top, d = right, g = left """
         return self.deplacement
 
-    def bas(self):
+    def movement_chose(self, direction, _) -> None:
+        """ only call by the class, it's to stock the chosen direction and stop the mainloop """
         self.fenetre.quit()
-        print(1)
-        self.deplacement = 'b'
+        self.deplacement = direction
         
-
     def mouvements(self):
-        self.canvas.bind_all("<Down>", self.bas())
+        """ call to wait the movement of the player.
+        when a direction has been chosen, the mainloop ends and 
+        the fonction get_mouvement can be call to get the movement chose """
+        self.canvas.bind_all("<Down>", partial(self.movement_chose, 'd'))
+        self.canvas.bind_all("<Up>", partial(self.movement_chose, 'u'))
+        self.canvas.bind_all("<Left>", partial(self.movement_chose, 'l'))
+        self.canvas.bind_all("<Right>", partial(self.movement_chose, 'r'))
         self.fenetre.mainloop()
 
+    def victory(self, win: bool) -> None:
+        """ win is a boolean which mean if the player won or not: 
+        True = victory, 
+        False = lose
+        It's a fonction to call when the party is over, and which makes the end of the game """
 
-if __name__ == "__main__":
-    a = Graphique()
-    a.grille()
-    a.affiche_plateau([2, 8, 16, 0, 0, 2048])
-    a.mouvements()
+        if win:
+            self.victory_text = self.canvas.create_text(430, 70, text = "Congratulations, you win !", font=('Tekton Pro', 50, 'italic'), fill = '#FFC700')
+        else:
+            self.defeat_text = self.canvas.create_text(430, 50, text = "You lose, try again !", font=('Tekton Pro', 50, 'italic'), fill = '#FF3232')
+            self.canvas.bind_all("<Down>", partial(self.new_game, True))
+            self.canvas.bind_all("<Up>", partial(self.new_game, True))
+            self.canvas.bind_all("<Left>", partial(self.new_game, True))
+            self.canvas.bind_all("<Right>", partial(self.new_game, True))
+            self.canvas.bind_all("<Return>", partial(self.new_game, False))
+            self.canvas.create_text(430, 110, text = "to continue playing, press an arrow, to stop playing press enter", font = ("Helvetica", 20))
+
+        self.fenetre.mainloop()
+
+    def new_game(self, play, _) -> None:
+        """ call by the class when the player lost and decided to play again or not """
+        self.fenetre.quit()
+        if play:
+            self.play = True
+        else:
+            self.play = False
+
+    def get_play_again(self):
+        """ fonction to call at the end of the game, when the player lost and when he made the choice to play again or not 
+        return True if the player wants to play a new game, False if he wants to stop playing """
+        return self.play
